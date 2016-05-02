@@ -38,19 +38,32 @@ void PlayState::init()
     map = new tmx::MapLoader("data/maps");       // all maps/tiles will be read from data/maps
     // map->AddSearchPath("data/maps/tilesets"); // e.g.: adding more search paths for tilesets
     map->Load("dungeon-tilesets2.tmx");
+    cout << "alo\n";
 
     walkStates[0] = "walk-right";
     walkStates[1] = "walk-left";
     walkStates[2] = "walk-up";
     walkStates[3] = "walk-down";
     currentDir = RIGHT;
+    cout << "alo\n";
     player.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
     player.setPosition(400,500);
+    cout << "alo\n";
     player.loadAnimation("data/img/warrioranim.xml");
     player.setAnimation(walkStates[currentDir]);
     player.setAnimRate(30);
     player.setScale(1,1);
     player.play();
+
+    shot.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
+    //shot.setPosition(400,500);
+    shot.loadAnimation("data/img/warrioranim.xml");
+    shot.setAnimation(walkStates[currentDir]);
+    shot.setAnimRate(30);
+    shot.setScale(1,1);
+    shot.play();
+
+    cout << "alo\n";
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -155,6 +168,9 @@ void PlayState::handleEvents(cgf::Game* game)
 
     player.setXspeed(500*dirx);
     player.setYspeed(1000*diry);
+
+    shot.setXspeed(500*dirx);
+    shot.setYspeed(10000*diry);
 }
 
 bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
@@ -185,20 +201,60 @@ bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
 
 }
 
-void playerShoot(cgf::Game* game, cgf::Sprite* obj)
+bool moveShot(cgf::Game* game, cgf::Sprite* obj)
 {
-    if(shoot)
+    if(shoot == false)
+    {
+        float px = obj->getPosition().x;
+        float py = obj->getPosition().y;
+
+        double deltaTime = game->getUpdateInterval();
+
+        sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
+
+        float vx = offset.x;
+        float vy = offset.y;
+
+
+        cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
+
+
+        obj->setPosition(px,py-10);
+    }
+
+
+}
+
+
+void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
+{
+    if (shoot)
     {
 
-    }
+
+        float px = player->getPosition().x;
+        float py = player->getPosition().y;
+        float tam = player->getSize().y;
+        obj->setPosition( px , py - tam);
+
+        shoot = false;
+     }
 }
 
 void PlayState::update(cgf::Game* game)
 {
     screen = game->getScreen();
     //checkCollision(2, game, &player);
-    //movePlayer(game, &player);
-    //playerShoot(game, &player);
+
+
+    movePlayer(game, &player);
+    moveShot(game, &shot);
+
+        playerShoot(game, &player,&shot);
+
+
+
+
 //    player.update(game->getUpdateInterval());
     //centerMapOnPlayer();
 }
@@ -209,6 +265,7 @@ void PlayState::draw(cgf::Game* game)
     map->Draw(*screen);          // draw all layers
 //    map->Draw(*screen, 1);     // draw only the second layer
     screen->draw(player);
+    screen->draw(shot);
     screen->draw(text);
 }
 
