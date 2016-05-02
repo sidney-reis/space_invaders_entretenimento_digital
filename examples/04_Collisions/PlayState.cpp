@@ -35,7 +35,6 @@ void PlayState::init()
     text.setCharacterSize(24); // in pixels
     text.setColor(sf::Color::Yellow);
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
-
     map = new tmx::MapLoader("data/maps");       // all maps/tiles will be read from data/maps
     // map->AddSearchPath("data/maps/tilesets"); // e.g.: adding more search paths for tilesets
     map->Load("dungeon-tilesets2.tmx");
@@ -186,7 +185,7 @@ bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
 
 }
 
-playerShoot(cgf::Game* game, cgf::Sprite* obj)
+void playerShoot(cgf::Game* game, cgf::Sprite* obj)
 {
     if(shoot)
     {
@@ -198,8 +197,8 @@ void PlayState::update(cgf::Game* game)
 {
     screen = game->getScreen();
     //checkCollision(2, game, &player);
-    movePlayer(game, &player);
-    playerShoot(game, &player);
+    //movePlayer(game, &player);
+    //playerShoot(game, &player);
 //    player.update(game->getUpdateInterval());
     //centerMapOnPlayer();
 }
