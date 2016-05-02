@@ -196,11 +196,10 @@ void playerShoot(cgf::Game* game, cgf::Sprite* obj)
 void PlayState::update(cgf::Game* game)
 {
     screen = game->getScreen();
-    //checkCollision(2, game, &player);
-    //movePlayer(game, &player);
-    //playerShoot(game, &player);
-//    player.update(game->getUpdateInterval());
-    //centerMapOnPlayer();
+    checkCollision(2, game, &player);
+    movePlayer(game, &player);
+    playerShoot(game, &player);
+    player.update(game->getUpdateInterval());
 }
 
 void PlayState::draw(cgf::Game* game)
@@ -210,34 +209,6 @@ void PlayState::draw(cgf::Game* game)
 //    map->Draw(*screen, 1);     // draw only the second layer
     screen->draw(player);
     screen->draw(text);
-}
-
-void PlayState::centerMapOnPlayer()
-{
-    sf::View view = screen->getView();
-    sf::Vector2u mapsize = map->GetMapSize();
-    sf::Vector2f viewsize = view.getSize();
-    viewsize.x /= 2;
-    viewsize.y /= 2;
-    sf::Vector2f pos = player.getPosition();
-
-    float panX = viewsize.x; // minimum pan
-    if(pos.x >= viewsize.x)
-        panX = pos.x;
-
-    if(panX >= mapsize.x - viewsize.x)
-        panX = mapsize.x - viewsize.x;
-
-    float panY = viewsize.y; // minimum pan
-    if(pos.y >= viewsize.y)
-        panY = pos.y;
-
-    if(panY >= mapsize.y - viewsize.y)
-        panY = mapsize.y - viewsize.y;
-
-    sf::Vector2f center(panX,panY);
-    view.setCenter(center);
-    screen->setView(view);
 }
 
 bool PlayState::checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj)
