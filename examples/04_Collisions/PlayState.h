@@ -56,19 +56,9 @@ class PlayState : public cgf::GameState
     sf::RenderWindow* screen;
     cgf::InputManager* im;
 
-    tmx::MapLoader* map;
-
-    sf::Font font;
-    sf::Text text;
-
-    // Centers the camera on the player position
-    void centerMapOnPlayer();
-
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);
 
-    // get a cell GID from the map (x and y in world coords)
-    sf::Uint16 getCellFromMap(uint8_t layernum, float x, float y);
 };
 
 #endif
