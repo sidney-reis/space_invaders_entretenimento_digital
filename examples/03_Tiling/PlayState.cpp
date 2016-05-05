@@ -32,25 +32,30 @@ void PlayState::init()
     walkStates[2] = "walk-up";
     walkStates[3] = "walk-down";
     currentDir = RIGHT;
-    cout << "alo\n";
+
+    //CARREGA O JOGADOR
     player.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
     player.setPosition(400,500);
-    cout << "alo\n";
     player.loadAnimation("data/img/warrioranim.xml");
     player.setAnimation(walkStates[currentDir]);
     player.setAnimRate(30);
     player.setScale(1,1);
     player.play();
 
-    shot.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
-    //shot.setPosition(400,500);
+    //CARREGA O TIRO DO JOGADOR
+    shot.load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+    shot.setPosition(400,-500);
     shot.loadAnimation("data/img/warrioranim.xml");
     shot.setAnimation(walkStates[currentDir]);
     shot.setAnimRate(30);
     shot.setScale(1,1);
     shot.play();
 
-    cout << "alo\n";
+    //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
+    enemy.load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
+    enemy.setPosition(400,100);
+    enemy.setScale(1,1);
+    enemy.play();
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -90,6 +95,101 @@ void PlayState::resume()
     cout << "PlayState: Resumed" << endl;
 }
 
+bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
+{
+    float px = obj->getPosition().x;
+
+    double deltaTime = game->getUpdateInterval();
+
+    sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
+
+    float vx = offset.x;
+
+    cout << "Px: " << px << " vx: " << vx << " tam: " << obj->getScale().x << "\n";
+
+    if(px + vx + PLAYERSIZE >= XSCREENSIZE)
+    {
+        px = XSCREENSIZE - PLAYERSIZE;
+        vx = 0;
+    }
+    else if(px + vx <= 0)
+    {
+        px = 0;
+        vx = 0;
+    }
+
+    obj->setPosition(px+vx,YPLAYER);
+
+}
+
+bool moveShot(cgf::Game* game, cgf::Sprite* obj)
+{
+    if(shoot == true)
+    {
+        float px = obj->getPosition().x;
+        float py = obj->getPosition().y;
+
+        double deltaTime = game->getUpdateInterval();
+
+        sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
+
+        float vx = offset.x;
+        float vy = offset.y;
+
+        cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
+
+        if (py - 10 <= 0 - 50) //mudar constante pelo tamanho do sprite real
+        {
+            shoot = false;
+        }
+
+        obj->setPosition(px,py-10); // 10 é a velocidade do tiro, será mudada
+    }
+}
+
+
+void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
+{
+    if (!shoot)
+    {
+        float px = player->getPosition().x;
+        float py = player->getPosition().y;
+        float tamy = player->getSize().y;
+        float tamx = player->getSize().x;
+        obj->setPosition( px + tamx/2 , py - tamy);
+
+        shoot = true;
+     }
+}
+
+void PlayState::checkCollisions()
+{
+    //Quando tivermos mais inimigos, basta iterar por eles
+    if(shot.bboxCollision(enemy))
+    {
+        enemy.setPosition(300, -500); //fora da tela
+        shoot = false;
+        shot.setPosition(400, -500); //fora da tela
+    }
+}
+
+void PlayState::update(cgf::Game* game)
+{
+    screen = game->getScreen();
+    //checkCollision(2, game, &player);
+    movePlayer(game, &player);
+    moveShot(game, &shot);
+
+
+
+    checkCollisions();
+
+//    player.update(game->getUpdateInterval());
+    //centerMapOnPlayer();
+
+}
+
+
 void PlayState::handleEvents(cgf::Game* game)
 {
     screen = game->getScreen();
@@ -103,7 +203,6 @@ void PlayState::handleEvents(cgf::Game* game)
     }
 
     dirx = diry = 0;
-    shoot = false;
     int newDir = currentDir;
 
     if(im->testEvent("left")) {
@@ -118,7 +217,7 @@ void PlayState::handleEvents(cgf::Game* game)
 
 
     if(im->testEvent("space")) {
-        shoot = true;
+        playerShoot(game, &player, &shot);
     }
 
     if(im->testEvent("quit") || im->testEvent("rightclick"))
@@ -144,103 +243,18 @@ void PlayState::handleEvents(cgf::Game* game)
     shot.setYspeed(10000*diry);
 }
 
-bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
-{
-    float px = obj->getPosition().x;
-
-    double deltaTime = game->getUpdateInterval();
-
-    sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
-
-    float vx = offset.x;
-
-    cout << "Px: " << px << " vx: " << vx << " tam: " << obj->getScale().x << "\n";
-
-    if(px + vx + PLAYERSIZE >= XSCREENSIZE)
-    {
-        px = XSCREENSIZE - PLAYERSIZE;
-        vx = 0;
-    }
-    else if(px + vx <= 0)
-    {
-        px = 0;
-        vx = 0;
-    }
-
-
-    obj->setPosition(px+vx,YPLAYER);
-
-}
-
-bool moveShot(cgf::Game* game, cgf::Sprite* obj)
-{
-    if(shoot == false)
-    {
-        float px = obj->getPosition().x;
-        float py = obj->getPosition().y;
-
-        double deltaTime = game->getUpdateInterval();
-
-        sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
-
-        float vx = offset.x;
-        float vy = offset.y;
-
-
-        cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
-
-
-        obj->setPosition(px,py-10);
-    }
-
-
-}
-
-
-void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
-{
-    if (shoot)
-    {
-
-
-        float px = player->getPosition().x;
-        float py = player->getPosition().y;
-        float tam = player->getSize().y;
-        obj->setPosition( px , py - tam);
-
-        shoot = false;
-     }
-}
-
-void PlayState::update(cgf::Game* game)
-{
-    screen = game->getScreen();
-    //checkCollision(2, game, &player);
-
-
-    movePlayer(game, &player);
-    moveShot(game, &shot);
-
-        playerShoot(game, &player,&shot);
-
-
-
-
-//    player.update(game->getUpdateInterval());
-    //centerMapOnPlayer();
-
-}
-
 void PlayState::draw(cgf::Game* game)
 {
     screen = game->getScreen();
     screen->draw(player);
     screen->draw(shot);
+    screen->draw(enemy);
 }
 
 
-
+/*
 bool PlayState::checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj)
 {
     bool bump = false;
 }
+*/
