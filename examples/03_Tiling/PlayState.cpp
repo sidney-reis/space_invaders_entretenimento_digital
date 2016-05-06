@@ -34,12 +34,12 @@ void PlayState::init()
     currentDir = RIGHT;
 
     //CARREGA O JOGADOR
-    player.load("data/img/warrior.png",64,64,0,0,0,0,13,21,273);
+    player.loadXML("data/img/player.xml");
     player.setPosition(400,500);
-    player.loadAnimation("data/img/warrioranim.xml");
-    player.setAnimation(walkStates[currentDir]);
-    player.setAnimRate(30);
-    player.setScale(1,1);
+    player.loadAnimation("data/img/playeranim.xml");
+    player.setAnimation("fly");
+    player.setAnimRate(10);
+    player.setScale(0.1,0.1);
     player.play();
 
     //CARREGA O TIRO DO JOGADOR
@@ -154,8 +154,8 @@ void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
     {
         float px = player->getPosition().x;
         float py = player->getPosition().y;
-        float tamy = player->getSize().y;
-        float tamx = player->getSize().x;
+        float tamy = player->getSize().y * player->getScale().y;
+        float tamx = player->getSize().x * player->getScale().x;
         obj->setPosition( px + tamx/2 , py - tamy);
 
         shoot = true;
@@ -184,8 +184,7 @@ void PlayState::update(cgf::Game* game)
 
     checkCollisions();
 
-//    player.update(game->getUpdateInterval());
-    //centerMapOnPlayer();
+    player.update(game->getUpdateInterval());
 
 }
 
@@ -233,7 +232,6 @@ void PlayState::handleEvents(cgf::Game* game)
         if(currentDir != newDir) {
             currentDir = newDir;
         }
-        player.play();
     }
 
     player.setXspeed(500*dirx);
@@ -241,6 +239,7 @@ void PlayState::handleEvents(cgf::Game* game)
 
     shot.setXspeed(500*dirx);
     shot.setYspeed(10000*diry);
+    player.play();
 }
 
 void PlayState::draw(cgf::Game* game)
