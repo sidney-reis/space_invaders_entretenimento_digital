@@ -26,13 +26,6 @@ using namespace std;
 
 void PlayState::init()
 {
-
-    walkStates[0] = "walk-right";
-    walkStates[1] = "walk-left";
-    walkStates[2] = "walk-up";
-    walkStates[3] = "walk-down";
-    currentDir = RIGHT;
-
     //CARREGA O JOGADOR
     player.loadXML("data/img/player.xml");
     player.setPosition(400,500);
@@ -45,17 +38,18 @@ void PlayState::init()
     //CARREGA O TIRO DO JOGADOR
     shot.load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
     shot.setPosition(400,-500);
-    shot.loadAnimation("data/img/warrioranim.xml");
-    shot.setAnimation(walkStates[currentDir]);
-    shot.setAnimRate(30);
     shot.setScale(1,1);
     shot.play();
 
     //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
-    enemy.load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
+    enemy.loadXML("data/img/enemy.xml");
     enemy.setPosition(400,100);
-    enemy.setScale(1,1);
+    enemy.loadAnimation("data/img/enemyanim.xml");
+    enemy.setAnimation("fly");
+    enemy.setAnimRate(10);
+    enemy.setScale(0.2,0.2);
     enemy.play();
+
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -185,6 +179,7 @@ void PlayState::update(cgf::Game* game)
     checkCollisions();
 
     player.update(game->getUpdateInterval());
+    enemy.update(game->getUpdateInterval());
 
 }
 
@@ -240,6 +235,7 @@ void PlayState::handleEvents(cgf::Game* game)
     shot.setXspeed(500*dirx);
     shot.setYspeed(10000*diry);
     player.play();
+    enemy.play();
 }
 
 void PlayState::draw(cgf::Game* game)
