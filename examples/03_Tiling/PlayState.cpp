@@ -26,8 +26,6 @@ int enemies_dead = 0;
 
 using namespace std;
 
-
-
 void PlayState::init()
 {
     //CARREGA O JOGADOR
@@ -45,8 +43,6 @@ void PlayState::init()
     shot.setScale(1,1);
     shot.play();
 
-
-
     //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -60,13 +56,9 @@ void PlayState::init()
             enemies[i][j].loadAnimation("data/img/enemyanim.xml");
             enemies[i][j].setAnimation("fly");
             enemies[i][j].setAnimRate(10);
-            enemies[i][j].setScale(0.2,0.2);
+            enemies[i][j].setScale(0.15,0.15);
             enemies[i][j].play();
-            enemies[i][j].setPosition((i+1)*60,(j+1)*60);
-            /*enemies[i][j].load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
-            enemies[i][j].setPosition((i+1)*60,(j+1)*60);
-            enemies[i][j].setScale(1,1);
-            enemies[i][j].play();*/
+            enemies[i][j].setPosition((i+1)*65,(j+1)*65);
         }
 
     //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
@@ -232,9 +224,6 @@ void PlayState::update(cgf::Game* game)
     //checkCollision(2, game, &player);
     movePlayer(game, &player);
     moveShot(game, &shot);
-
-
-
     checkCollisions();
 
     player.update(game->getUpdateInterval());
@@ -245,7 +234,8 @@ void PlayState::update(cgf::Game* game)
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
         {
-            if(enemies_alive[i][j] && (enemies[i][j].getPosition().x > 800 || enemies[i][j].getPosition().x < 0))
+            enemies[i][j].update(game->getUpdateInterval());
+            if(enemies_alive[i][j] && (enemies[i][j].getPosition().x+65 > 800 || enemies[i][j].getPosition().x < 0))
             {
                 //cout << "ENTROU";
                 turn = -turn;
