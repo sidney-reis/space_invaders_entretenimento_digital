@@ -46,6 +46,7 @@ void PlayState::init()
     shot.play();
 
 
+
     //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -54,21 +55,29 @@ void PlayState::init()
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
         {
-            enemies[i][j].load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
+            enemies[i][j].loadXML("data/img/enemy.xml");
+            enemies[i][j].setPosition(400,100);
+            enemies[i][j].loadAnimation("data/img/enemyanim.xml");
+            enemies[i][j].setAnimation("fly");
+            enemies[i][j].setAnimRate(10);
+            enemies[i][j].setScale(0.2,0.2);
+            enemies[i][j].play();
+            enemies[i][j].setPosition((i+1)*60,(j+1)*60);
+            /*enemies[i][j].load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
             enemies[i][j].setPosition((i+1)*60,(j+1)*60);
             enemies[i][j].setScale(1,1);
-            enemies[i][j].play();
+            enemies[i][j].play();*/
         }
 
     //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
-    enemy.loadXML("data/img/enemy.xml");
+    /*enemy.loadXML("data/img/enemy.xml");
     enemy.setPosition(400,100);
     enemy.loadAnimation("data/img/enemyanim.xml");
     enemy.setAnimation("fly");
     enemy.setAnimRate(10);
     enemy.setScale(0.2,0.2);
     enemy.play();
-
+*/
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -160,7 +169,10 @@ bool moveShot(cgf::Game* game, cgf::Sprite* obj)
     }
 }
 
-
+bool moveEnemies(cgf::Game* game, cgf::Sprite* obj)
+{
+    float px = obj->getPosition().x;
+    float py = obj->getPosition().y;
     double deltaTime = game->getUpdateInterval();
 
     sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
@@ -226,6 +238,7 @@ void PlayState::update(cgf::Game* game)
     checkCollisions();
 
     player.update(game->getUpdateInterval());
+    //enemy.update(game->getUpdateInterval());
 
     float px;
     float py;
@@ -306,7 +319,11 @@ void PlayState::handleEvents(cgf::Game* game)
     shot.setXspeed(500*dirx);
     shot.setYspeed(10000*diry);
     player.play();
-    enemy.play();
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            if(enemies_alive[i][j] == 1)
+                enemies[i][j].play();
+    //enemy.play();
 }
 
 void PlayState::draw(cgf::Game* game)
@@ -314,7 +331,11 @@ void PlayState::draw(cgf::Game* game)
     screen = game->getScreen();
     screen->draw(player);
     screen->draw(shot);
-    screen->draw(enemy);
+    //screen->draw(enemy);
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            if(enemies_alive[i][j] == 1)
+                screen->draw(enemies[i][j]);
 }
 
 
