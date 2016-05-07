@@ -20,14 +20,22 @@
 PlayState PlayState::m_PlayState;
 bool shoot;
 int enemies_alive[10][3];
-float turn = 1.0;
-float enemies_speed = 1.0;
-int enemies_dead = 0;
+float turn;
+float enemies_speed;
+int enemies_dead;
+int lives;
+int won;
 
 using namespace std;
 
 void PlayState::init()
 {
+    turn = 1.0;
+    enemies_speed = 1.0;
+    enemies_dead = 0;
+    lives = 3;
+    won = 0;
+
     //CARREGA O JOGADOR
     player.loadXML("data/img/player.xml");
     player.setPosition(400,500);
@@ -74,7 +82,6 @@ void PlayState::init()
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
     shoot = false;
-
 
     im = cgf::InputManager::instance();
 
@@ -175,7 +182,6 @@ bool moveEnemies(cgf::Game* game, cgf::Sprite* obj)
     obj->setPosition(enemies_speed*turn + px,py);
 }
 
-
 void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
 {
     if (!shoot)
@@ -195,6 +201,7 @@ void PlayState::checkCollisions()
 
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
+        {
             if(shot.bboxCollision(enemies[i][j]))
             {
                 if(enemies_alive[i][j] == 1)
@@ -214,12 +221,27 @@ void PlayState::checkCollisions()
                         enemies_speed = 5;
                     if(enemies_dead == 29)
                         enemies_speed = 13;
+                    if(enemies_dead == 30)
+                        won = 1;
                 }
             }
+            if(enemies[i][j].bboxCollision(player))
+            {
+                lives--;
+            }
+        }
 }
 
 void PlayState::update(cgf::Game* game)
 {
+    if(lives == 0)
+    {
+        cout << "YOU LOSE\n";
+    }
+    if(won == 1)
+    {
+        cout << "YOU WIN\n";
+    }
     screen = game->getScreen();
     //checkCollision(2, game, &player);
     movePlayer(game, &player);
@@ -235,6 +257,7 @@ void PlayState::update(cgf::Game* game)
         for(int j = 0; j<3; j++)
         {
             enemies[i][j].update(game->getUpdateInterval());
+            moveEnemies(game, &enemies[i][j]);
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().x+65 > 800 || enemies[i][j].getPosition().x < 0))
             {
                 //cout << "ENTROU";
@@ -251,11 +274,11 @@ void PlayState::update(cgf::Game* game)
                         }
                     }
             }
+            if(enemies_alive[i][j] && (enemies[i][j].getPosition().y > 600))
+            {
+                lives = 0;
+            }
         }
-    for(int i = 0; i<10; i++)
-        for(int j = 0; j<3; j++)
-            if(enemies_alive[i][j] == 1)
-                moveEnemies(game, &enemies[i][j]);
 }
 
 void PlayState::handleEvents(cgf::Game* game)
