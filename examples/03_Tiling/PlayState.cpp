@@ -19,6 +19,7 @@
 
 PlayState PlayState::m_PlayState;
 bool shoot;
+bool enemies_shoot[10][3];
 int enemies_alive[10][3];
 float turn;
 float enemies_speed;
@@ -51,6 +52,16 @@ void PlayState::init()
     shot.setScale(1,1);
     shot.play();
 
+    //CARREGA OS TIROS DOS INIMIGOS
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            enemies_shot[i][j].load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+            enemies_shot[i][j].setPosition(400,-500);
+            enemies_shot[i][j].setScale(1,1);
+            enemies_shot[i][j].play();
+        }
+
     //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -82,6 +93,10 @@ void PlayState::init()
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
     shoot = false;
+
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            enemies_shoot[i][j] = false;
 
     im = cgf::InputManager::instance();
 
@@ -168,6 +183,31 @@ bool moveShot(cgf::Game* game, cgf::Sprite* obj)
     }
 }
 
+bool moveEnemyShot(cgf::Game* game, cgf::Sprite* obj, int i, int j)
+{
+    if(enemies_shoot[i][j] == true)
+    {
+        float px = obj->getPosition().x;
+        float py = obj->getPosition().y;
+
+        double deltaTime = game->getUpdateInterval();
+
+        sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
+
+        float vx = offset.x;
+        float vy = offset.y;
+
+        //cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
+
+        if (py + 10 >= 600 + 50) //mudar constante pelo tamanho do sprite real
+        {
+            enemies_shoot[i][j] = false;
+        }
+
+        obj->setPosition(px,py+10); // 10 é a velocidade do tiro, será mudada
+    }
+}
+
 bool moveEnemies(cgf::Game* game, cgf::Sprite* obj)
 {
     float px = obj->getPosition().x;
@@ -193,6 +233,20 @@ void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
         obj->setPosition( px + tamx/2 , py - tamy);
 
         shoot = true;
+     }
+}
+
+void enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, int i, int j)
+{
+    if (!enemies_shoot[i][j])
+    {
+        float px = enem->getPosition().x;
+        float py = enem->getPosition().y;
+        float tamy = enem->getSize().y * enem->getScale().y;
+        float tamx = enem->getSize().x * enem->getScale().x;
+        obj->setPosition( px + tamx/2 , py + tamy);
+
+        enemies_shoot[i][j] = true;
      }
 }
 
@@ -225,9 +279,15 @@ void PlayState::checkCollisions()
                         won = 1;
                 }
             }
+            if(enemies_shot[i][j].bboxCollision(player))
+            {
+                lives--;
+                player.setPosition(400,500);
+            }
             if(enemies[i][j].bboxCollision(player))
             {
                 lives--;
+                player.setPosition(400,500);
             }
         }
 }
@@ -244,8 +304,40 @@ void PlayState::update(cgf::Game* game)
     }
     screen = game->getScreen();
     //checkCollision(2, game, &player);
+    int random_shot;
+    bool clear_path = 1;
+    int j2 = 0;
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            if(enemies_alive[i][j] == 1)
+            {
+                j2 = j+1;
+                clear_path = 1;
+                while(j2 < 3)
+                {
+                    if((enemies_alive[i][j2] == 1) && (clear_path == 1))
+                    {
+                        clear_path = 0;
+                    }
+                    j2++;
+                }
+                if(clear_path)
+                {
+                    random_shot = rand() % (250/(enemies_dead+1)) + 1;
+                    if(random_shot == 5)
+                    {
+                        enemyShoot(game, &enemies[i][j], &enemies_shot[i][j], i, j);
+                    }
+                }
+            }
+        }
+
     movePlayer(game, &player);
     moveShot(game, &shot);
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            moveEnemyShot(game, &enemies_shot[i][j], i, j);
     checkCollisions();
 
     player.update(game->getUpdateInterval());
@@ -331,6 +423,12 @@ void PlayState::handleEvents(cgf::Game* game)
 
     shot.setXspeed(500*dirx);
     shot.setYspeed(10000*diry);
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            enemies_shot[i][j].setXspeed(500*dirx);
+            enemies_shot[i][j].setYspeed(10000*diry);
+        }
     player.play();
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -344,6 +442,9 @@ void PlayState::draw(cgf::Game* game)
     screen = game->getScreen();
     screen->draw(player);
     screen->draw(shot);
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            screen->draw(enemies_shot[i][j]);
     //screen->draw(enemy);
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
