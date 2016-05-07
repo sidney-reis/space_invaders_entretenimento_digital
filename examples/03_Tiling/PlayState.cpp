@@ -19,6 +19,10 @@
 
 PlayState PlayState::m_PlayState;
 bool shoot;
+int enemies_alive[10][3];
+float turn = 1.0;
+float enemies_speed = 1.0;
+int enemies_dead = 0;
 
 using namespace std;
 
@@ -40,6 +44,21 @@ void PlayState::init()
     shot.setPosition(400,-500);
     shot.setScale(1,1);
     shot.play();
+
+
+    //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            enemies_alive[i][j] = 1;
+
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            enemies[i][j].load("data/img/enemy.png",41,35,0,0,0,0,13,21,273);
+            enemies[i][j].setPosition((i+1)*60,(j+1)*60);
+            enemies[i][j].setScale(1,1);
+            enemies[i][j].play();
+        }
 
     //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
     enemy.loadXML("data/img/enemy.xml");
@@ -99,7 +118,7 @@ bool movePlayer(cgf::Game* game, cgf::Sprite* obj)
 
     float vx = offset.x;
 
-    cout << "Px: " << px << " vx: " << vx << " tam: " << obj->getScale().x << "\n";
+    //cout << "Px: " << px << " vx: " << vx << " tam: " << obj->getScale().x << "\n";
 
     if(px + vx + PLAYERSIZE >= XSCREENSIZE)
     {
@@ -130,7 +149,7 @@ bool moveShot(cgf::Game* game, cgf::Sprite* obj)
         float vx = offset.x;
         float vy = offset.y;
 
-        cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
+        //cout << "Py: " << py << " vy: " << vy << " tam: " << obj->getScale().y << "\n";
 
         if (py - 10 <= 0 - 50) //mudar constante pelo tamanho do sprite real
         {
@@ -139,6 +158,17 @@ bool moveShot(cgf::Game* game, cgf::Sprite* obj)
 
         obj->setPosition(px,py-10); // 10 é a velocidade do tiro, será mudada
     }
+}
+
+
+    double deltaTime = game->getUpdateInterval();
+
+    sf::Vector2f offset(obj->getXspeed()/1000 * deltaTime, obj->getYspeed()/1000 * deltaTime);
+
+    float vx = offset.x;
+    float vy = offset.y;
+
+    obj->setPosition(enemies_speed*turn + px,py);
 }
 
 
@@ -158,13 +188,30 @@ void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
 
 void PlayState::checkCollisions()
 {
-    //Quando tivermos mais inimigos, basta iterar por eles
-    if(shot.bboxCollision(enemy))
-    {
-        enemy.setPosition(300, -500); //fora da tela
-        shoot = false;
-        shot.setPosition(400, -500); //fora da tela
-    }
+
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            if(shot.bboxCollision(enemies[i][j]))
+            {
+                if(enemies_alive[i][j] == 1)
+                {
+                    enemies[i][j].setPosition(300, -500); //fora da tela
+                    shoot = false;
+                    shot.setPosition(400, -500); //fora da tela
+                    enemies_alive[i][j] = 0;
+                    enemies_dead++;
+                    if(enemies_dead == 5)
+                        enemies_speed = 2;
+                    if(enemies_dead == 15)
+                        enemies_speed = 3;
+                    if(enemies_dead == 20)
+                        enemies_speed = 4;
+                    if(enemies_dead == 25)
+                        enemies_speed = 5;
+                    if(enemies_dead == 29)
+                        enemies_speed = 13;
+                }
+            }
 }
 
 void PlayState::update(cgf::Game* game)
@@ -179,10 +226,34 @@ void PlayState::update(cgf::Game* game)
     checkCollisions();
 
     player.update(game->getUpdateInterval());
-    enemy.update(game->getUpdateInterval());
 
+    float px;
+    float py;
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            if(enemies_alive[i][j] && (enemies[i][j].getPosition().x > 800 || enemies[i][j].getPosition().x < 0))
+            {
+                //cout << "ENTROU";
+                turn = -turn;
+                for(int i = 0; i<10; i++)
+                    for(int j = 0; j<3; j++)
+                    {
+                        if(enemies_alive[i][j] == 1)
+                        {
+                            px = enemies[i][j].getPosition().x;
+                            py = enemies[i][j].getPosition().y + 5.0;
+                            //cout << "PX: " << px << "PY: " << py;
+                            enemies[i][j].setPosition(px, py);
+                        }
+                    }
+            }
+        }
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            if(enemies_alive[i][j] == 1)
+                moveEnemies(game, &enemies[i][j]);
 }
-
 
 void PlayState::handleEvents(cgf::Game* game)
 {
