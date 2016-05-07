@@ -274,7 +274,7 @@ void PlayState::checkCollisions()
                     if(enemies_dead == 25)
                         enemies_speed = 5;
                     if(enemies_dead == 29)
-                        enemies_speed = 13;
+                        enemies_speed = 25;
                     if(enemies_dead == 30)
                         won = 1;
                 }
