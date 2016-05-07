@@ -56,6 +56,7 @@ class PlayState : public cgf::GameState
     cgf::Sprite shot;
     //cgf::Sprite enemy;
     cgf::Sprite enemies[10][3];
+    cgf::Sprite enemies_shot[10][3];
 
     sf::RenderWindow* screen;
     cgf::InputManager* im;

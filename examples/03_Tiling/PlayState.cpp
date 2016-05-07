@@ -304,6 +304,7 @@ void PlayState::update(cgf::Game* game)
     }
     screen = game->getScreen();
     //checkCollision(2, game, &player);
+
     int random_shot;
     bool clear_path = 1;
     int j2 = 0;
@@ -324,7 +325,7 @@ void PlayState::update(cgf::Game* game)
                 }
                 if(clear_path)
                 {
-                    random_shot = rand() % (250/(enemies_dead+1)) + 1;
+                    random_shot = rand() % (250 - enemies_dead*5) + 1;
                     if(random_shot == 5)
                     {
                         enemyShoot(game, &enemies[i][j], &enemies_shot[i][j], i, j);
