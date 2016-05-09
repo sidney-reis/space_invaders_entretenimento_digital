@@ -28,6 +28,9 @@ class PlayState : public cgf::GameState
 
     void handleEvents(cgf::Game* game);
     void update(cgf::Game* game);
+    void moveAllEnemyShots(cgf::Game* game);
+    void generateEnemyShots(cgf::Game* game);
+    void checkEnemiesMoves(cgf::Game* game);
     void draw(cgf::Game* game);
     void checkCollisions();
 

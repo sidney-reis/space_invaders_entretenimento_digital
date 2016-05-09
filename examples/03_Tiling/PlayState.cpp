@@ -292,19 +292,24 @@ void PlayState::checkCollisions()
         }
 }
 
-void PlayState::update(cgf::Game* game)
+void checkVictory()
 {
     if(lives == 0)
     {
         cout << "YOU LOSE\n";
     }
+    if(lives == -1)
+    {
+        cout << "YOU LOSE! EARTH IS UNDER ATTACK!\n";
+    }
     if(won == 1)
     {
         cout << "YOU WIN\n";
     }
-    screen = game->getScreen();
-    //checkCollision(2, game, &player);
+}
 
+void PlayState::generateEnemyShots(cgf::Game* game)
+{
     int random_shot;
     bool clear_path = 1;
     int j2 = 0;
@@ -333,17 +338,17 @@ void PlayState::update(cgf::Game* game)
                 }
             }
         }
+}
 
-    movePlayer(game, &player);
-    moveShot(game, &shot);
+void PlayState::moveAllEnemyShots(cgf::Game* game)
+{
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
             moveEnemyShot(game, &enemies_shot[i][j], i, j);
-    checkCollisions();
+}
 
-    player.update(game->getUpdateInterval());
-    //enemy.update(game->getUpdateInterval());
-
+void PlayState::checkEnemiesMoves(cgf::Game* game)
+{
     float px;
     float py;
     for(int i = 0; i<10; i++)
@@ -353,7 +358,6 @@ void PlayState::update(cgf::Game* game)
             moveEnemies(game, &enemies[i][j]);
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().x+65 > 800 || enemies[i][j].getPosition().x < 0))
             {
-                //cout << "ENTROU";
                 turn = -turn;
                 for(int i = 0; i<10; i++)
                     for(int j = 0; j<3; j++)
@@ -362,16 +366,32 @@ void PlayState::update(cgf::Game* game)
                         {
                             px = enemies[i][j].getPosition().x;
                             py = enemies[i][j].getPosition().y + 5.0;
-                            //cout << "PX: " << px << "PY: " << py;
                             enemies[i][j].setPosition(px, py);
                         }
                     }
             }
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().y > 600))
             {
-                lives = 0;
+                lives = -1;
             }
         }
+}
+
+void PlayState::update(cgf::Game* game)
+{
+    checkVictory();
+    screen = game->getScreen();
+    //checkCollision(2, game, &player);
+    generateEnemyShots(game);
+    movePlayer(game, &player);
+    moveShot(game, &shot);
+    moveAllEnemyShots(game);
+    checkCollisions();
+
+    player.update(game->getUpdateInterval());
+    //enemy.update(game->getUpdateInterval());
+
+    checkEnemiesMoves(game);
 }
 
 void PlayState::handleEvents(cgf::Game* game)
