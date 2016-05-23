@@ -31,6 +31,12 @@ using namespace std;
 
 void PlayState::init()
 {
+    // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
+    music.openFromFile("data/nost/Guile_Theme_-_Slam_Jam_Remix.ogg");
+    music.setVolume(30);  // 30% of max. voume
+    music.setLoop(true);  // loop mode
+    music.play();
+
     turn = 1.0;
     enemies_speed = 1.0;
     enemies_dead = 0;
@@ -179,7 +185,7 @@ bool moveShot(cgf::Game* game, cgf::Sprite* obj)
             shoot = false;
         }
 
-        obj->setPosition(px,py-10); // 10 È a velocidade do tiro, ser· mudada
+        obj->setPosition(px,py-10); // 10 √© a velocidade do tiro, ser√° mudada
     }
 }
 
@@ -204,7 +210,7 @@ bool moveEnemyShot(cgf::Game* game, cgf::Sprite* obj, int i, int j)
             enemies_shoot[i][j] = false;
         }
 
-        obj->setPosition(px,py+10); // 10 È a velocidade do tiro, ser· mudada
+        obj->setPosition(px,py+10); // 10 √© a velocidade do tiro, ser√° mudada
     }
 }
 

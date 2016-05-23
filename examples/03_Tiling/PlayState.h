@@ -64,6 +64,8 @@ class PlayState : public cgf::GameState
     sf::RenderWindow* screen;
     cgf::InputManager* im;
 
+    sf::Music music;
+
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);
 
