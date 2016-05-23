@@ -68,6 +68,7 @@ class PlayState : public cgf::GameState
 
     sf::SoundBuffer shootSoundBuffer;
     sf::Sound shootSound;
+    sf::Music music;
 
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);
