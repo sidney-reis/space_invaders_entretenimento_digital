@@ -37,6 +37,10 @@ void PlayState::init()
     lives = 3;
     won = 0;
 
+    shootSoundBuffer.loadFromFile("data/sounds/shoot.wav");
+    shootSound.setBuffer(shootSoundBuffer);
+    shootSound.setAttenuation(0);
+
     //CARREGA O JOGADOR
     player.loadXML("data/img/player.xml");
     player.setPosition(400,500);
@@ -222,10 +226,11 @@ bool moveEnemies(cgf::Game* game, cgf::Sprite* obj)
     obj->setPosition(enemies_speed*turn + px,py);
 }
 
-void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
+void PlayState::playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
 {
     if (!shoot)
     {
+        shootSound.play();
         float px = player->getPosition().x;
         float py = player->getPosition().y;
         float tamy = player->getSize().y * player->getScale().y;
@@ -236,7 +241,7 @@ void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj)
      }
 }
 
-void enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, int i, int j)
+void PlayState::enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, int i, int j)
 {
     if (!enemies_shoot[i][j])
     {
@@ -387,6 +392,8 @@ void PlayState::update(cgf::Game* game)
     moveShot(game, &shot);
     moveAllEnemyShots(game);
     checkCollisions();
+
+
 
     player.update(game->getUpdateInterval());
     //enemy.update(game->getUpdateInterval());

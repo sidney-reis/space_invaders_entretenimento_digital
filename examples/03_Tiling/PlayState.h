@@ -33,6 +33,8 @@ class PlayState : public cgf::GameState
     void checkEnemiesMoves(cgf::Game* game);
     void draw(cgf::Game* game);
     void checkCollisions();
+    void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj);
+    void enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, int i, int j);
 
     // Implement Singleton Pattern
     static PlayState* instance()
@@ -63,6 +65,9 @@ class PlayState : public cgf::GameState
 
     sf::RenderWindow* screen;
     cgf::InputManager* im;
+
+    sf::SoundBuffer shootSoundBuffer;
+    sf::Sound shootSound;
 
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);
