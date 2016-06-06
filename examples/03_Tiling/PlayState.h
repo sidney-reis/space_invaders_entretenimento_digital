@@ -35,6 +35,8 @@ class PlayState : public cgf::GameState
     void checkCollisions();
     void playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* obj);
     void enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, int i, int j);
+    void checkVictory();
+    void restart();
 
     // Implement Singleton Pattern
     static PlayState* instance()
@@ -61,6 +63,7 @@ class PlayState : public cgf::GameState
     cgf::Sprite shot;
     //cgf::Sprite enemy;
     cgf::Sprite enemies[10][3];
+    cgf::Sprite lives_icons[3];
     cgf::Sprite enemies_shot[10][3];
 
     sf::RenderWindow* screen;

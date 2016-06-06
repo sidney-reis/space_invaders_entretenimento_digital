@@ -72,6 +72,15 @@ void PlayState::init()
             enemies_shot[i][j].play();
         }
 
+    //CARREGA ICONES DE VIDA
+    for(int i = 0; i<3; i++)
+    {
+        lives_icons[i].loadXML("data/img/player.xml");
+        lives_icons[i].setPosition(10+(i*30),10);
+        lives_icons[i].setScale(0.05,0.05);
+        lives_icons[i].play();
+    }
+
     //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -126,8 +135,68 @@ void PlayState::init()
     cout << "PlayState: Init" << endl;
 }
 
+void PlayState::restart()
+{
+    // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
+
+    turn = 1.0;
+    enemies_speed = 1.0;
+    enemies_dead = 0;
+    lives = 3;
+    won = 0;
+
+    //CARREGA O JOGADOR
+    player.setPosition(400,500);
+
+    //CARREGA O TIRO DO JOGADOR
+    shot.setPosition(400,-500);
+
+    //CARREGA ICONES DE VIDA
+    for(int i = 0; i<3; i++)
+        lives_icons[i].setPosition(10+(i*30),10);
+
+    //CARREGA OS TIROS DOS INIMIGOS
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            enemies_shot[i][j].setPosition(400,-500);
+        }
+
+    //MATRIZ DE INIMIGOS VIVOS: 0 = MORTO, 1 = VIVO
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            enemies_alive[i][j] = 1;
+
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+        {
+            enemies[i][j].setPosition((i+1)*65,(j+1)*65);
+        }
+
+    //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
+    /*enemy.loadXML("data/img/enemy.xml");
+    enemy.setPosition(400,100);
+    enemy.loadAnimation("data/img/enemyanim.xml");
+    enemy.setAnimation("fly");
+    enemy.setAnimRate(10);
+    enemy.setScale(0.2,0.2);
+    enemy.play();
+*/
+
+    dirx = 0; // sprite dir: right (1), left (-1)
+    diry = 0; // down (1), up (-1)
+    shoot = false;
+
+    for(int i = 0; i<10; i++)
+        for(int j = 0; j<3; j++)
+            enemies_shoot[i][j] = false;
+
+    cout << "PlayState: Restart" << endl;
+}
+
 void PlayState::cleanup()
 {
+
     cout << "PlayState: Clean" << endl;
 }
 
@@ -303,19 +372,35 @@ void PlayState::checkCollisions()
         }
 }
 
-void checkVictory()
+void PlayState::checkVictory()
 {
+    if(lives == 2)
+    {
+        lives_icons[2].setPosition(400, -500);
+    }
+    if(lives == 1)
+    {
+        lives_icons[1].setPosition(400, -500);
+    }
     if(lives == 0)
     {
-        cout << "YOU LOSE\n";
+        lives_icons[0].setPosition(400, -500);
     }
     if(lives == -1)
     {
+       cout << "YOU LOSE\n";
+       restart();
+    }
+    if(lives == -2)
+    {
         cout << "YOU LOSE! EARTH IS UNDER ATTACK!\n";
+        restart();
+
     }
     if(won == 1)
     {
         cout << "YOU WIN\n";
+        restart();
     }
 }
 
@@ -383,7 +468,7 @@ void PlayState::checkEnemiesMoves(cgf::Game* game)
             }
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().y > 600))
             {
-                lives = -1;
+                lives = -2;
             }
         }
 }
@@ -476,6 +561,8 @@ void PlayState::draw(cgf::Game* game)
     screen = game->getScreen();
     screen->draw(player);
     screen->draw(shot);
+    for(int i = 0; i<3; i++)
+            screen->draw(lives_icons[i]);
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
             screen->draw(enemies_shot[i][j]);
