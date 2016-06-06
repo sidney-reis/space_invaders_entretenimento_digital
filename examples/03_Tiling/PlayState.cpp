@@ -447,30 +447,39 @@ void PlayState::checkEnemiesMoves(cgf::Game* game)
 {
     float px;
     float py;
+    bool touchedWall = false;
     for(int i = 0; i<10; i++)
+    {
         for(int j = 0; j<3; j++)
         {
             enemies[i][j].update(game->getUpdateInterval());
             moveEnemies(game, &enemies[i][j]);
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().x+65 > 800 || enemies[i][j].getPosition().x < 0))
             {
-                turn = -turn;
-                for(int i = 0; i<10; i++)
-                    for(int j = 0; j<3; j++)
-                    {
-                        if(enemies_alive[i][j] == 1)
-                        {
-                            px = enemies[i][j].getPosition().x;
-                            py = enemies[i][j].getPosition().y + 5.0;
-                            enemies[i][j].setPosition(px, py);
-                        }
-                    }
+                touchedWall = true;
             }
             if(enemies_alive[i][j] && (enemies[i][j].getPosition().y > 600))
             {
                 lives = -2;
             }
         }
+    }
+
+    if(touchedWall)
+    {
+        turn = -turn;
+
+        for(int i = 0; i<10; i++)
+            for(int j = 0; j<3; j++)
+            {
+                if(enemies_alive[i][j] == 1)
+                {
+                    px = enemies[i][j].getPosition().x;
+                    py = enemies[i][j].getPosition().y + 5.0;
+                    enemies[i][j].setPosition(px, py);
+                }
+            }
+    }
 }
 
 void PlayState::update(cgf::Game* game)
