@@ -57,9 +57,9 @@ void PlayState::init()
     player.play();
 
     //CARREGA O TIRO DO JOGADOR
-    shot.load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+    shot.load("data/img/bullet.png");
     shot.setPosition(400,-500);
-    shot.setScale(1,1);
+    shot.setScale(0.5,0.5);
     shot.play();
 
     background.load("data/img/background.jpg");
@@ -71,9 +71,9 @@ void PlayState::init()
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
         {
-            enemies_shot[i][j].load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+            enemies_shot[i][j].load("data/img/bullet_red.png");
             enemies_shot[i][j].setPosition(400,-500);
-            enemies_shot[i][j].setScale(1,1);
+            enemies_shot[i][j].setScale(0.5, -0.5);
             enemies_shot[i][j].play();
         }
 
@@ -314,8 +314,7 @@ void PlayState::playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* ob
         float px = player->getPosition().x;
         float py = player->getPosition().y;
         float tamy = player->getSize().y * player->getScale().y;
-        float tamx = player->getSize().x * player->getScale().x;
-        obj->setPosition( px + tamx/2 , py - tamy);
+        obj->setPosition( px, py - tamy);
 
         shoot = true;
      }
@@ -328,8 +327,7 @@ void PlayState::enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, 
         float px = enem->getPosition().x;
         float py = enem->getPosition().y;
         float tamy = enem->getSize().y * enem->getScale().y;
-        float tamx = enem->getSize().x * enem->getScale().x;
-        obj->setPosition( px + tamx/2 , py + tamy);
+        obj->setPosition( px, py + tamy);
 
         enemies_shoot[i][j] = true;
      }
