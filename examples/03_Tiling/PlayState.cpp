@@ -62,6 +62,11 @@ void PlayState::init()
     shot.setScale(1,1);
     shot.play();
 
+    background.load("data/img/background.jpg");
+    background.setPosition(0,0);
+    background.setScale(0.25,0.25);
+    background.play();
+
     //CARREGA OS TIROS DOS INIMIGOS
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
@@ -568,8 +573,10 @@ void PlayState::handleEvents(cgf::Game* game)
 void PlayState::draw(cgf::Game* game)
 {
     screen = game->getScreen();
+    screen->draw(background);
     screen->draw(player);
     screen->draw(shot);
+
     for(int i = 0; i<3; i++)
             screen->draw(lives_icons[i]);
     for(int i = 0; i<10; i++)

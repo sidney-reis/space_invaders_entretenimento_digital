@@ -62,6 +62,7 @@ class PlayState : public cgf::GameState
     cgf::Sprite player;
     cgf::Sprite shot;
     //cgf::Sprite enemy;
+    cgf::Sprite background;
     cgf::Sprite enemies[10][3];
     cgf::Sprite lives_icons[3];
     cgf::Sprite enemies_shot[10][3];
