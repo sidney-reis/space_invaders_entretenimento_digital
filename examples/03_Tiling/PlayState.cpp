@@ -21,6 +21,7 @@ PlayState PlayState::m_PlayState;
 bool shoot;
 bool enemies_shoot[10][3];
 int enemies_alive[10][3];
+bool asteroids_alive[3][3];
 float turn;
 float enemies_speed;
 int enemies_dead;
@@ -98,6 +99,36 @@ void PlayState::init()
             enemies[i][j].play();
             enemies[i][j].setPosition((i+1)*65,(j+1)*65);
         }
+
+    int posX = 100;
+    for(int i = 0; i < 3; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            asteroids_alive[i][j] = true;
+            if(j == 0)
+            {
+                asteroids[i][j].load("../sprites/asteroid_top.png",511,109,0,0,0,0,13,21,273);
+                asteroids[i][j].setPosition(posX, 405);
+                asteroids[i][j].setScale(0.2,0.2);
+            }
+            else if(j == 1)
+            {
+                asteroids[i][j].load("../sprites/asteroid_mid.png",511,136,0,0,0,0,13,21,273);
+                asteroids[i][j].setPosition(posX, asteroids[i][j-1].getPosition().y + 109 * 0.2);
+                asteroids[i][j].setScale(0.2,0.2);
+            }
+            else if(j == 2)
+            {
+                asteroids[i][j].load("../sprites/asteroid_bottom.png",511,145,0,0,0,0,13,21,273);
+                asteroids[i][j].setPosition(posX, asteroids[i][j-1].getPosition().y + 136 * 0.2);
+                asteroids[i][j].setScale(0.2,0.2);
+            }
+        }
+        posX += 250;
+    }
+
+
 
     //CARREGA UM INIMIGO PLACEHOLDER PARA TESTES
     /*enemy.loadXML("data/img/enemy.xml");
@@ -182,6 +213,28 @@ void PlayState::restart()
     enemy.setScale(0.2,0.2);
     enemy.play();
 */
+
+    int posX = 100;
+    for(int i = 0; i < 3; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            asteroids_alive[i][j] = true;
+            if(j == 0)
+            {
+                asteroids[i][j].setPosition(posX, 405);
+            }
+            else if(j == 1)
+            {
+                asteroids[i][j].setPosition(posX, asteroids[i][j-1].getPosition().y + 109 * 0.2);
+            }
+            else if(j == 2)
+            {
+                asteroids[i][j].setPosition(posX, asteroids[i][j-1].getPosition().y + 136 * 0.2);
+            }
+        }
+        posX += 250;
+    }
 
     dirx = 0; // sprite dir: right (1), left (-1)
     diry = 0; // down (1), up (-1)
@@ -362,14 +415,38 @@ void PlayState::checkCollisions()
             if(enemies_shot[i][j].bboxCollision(player))
             {
                 lives--;
+                enemies_shot[i][j].setPosition(-400, -500);
                 player.setPosition(400,500);
             }
+
+            for(int k = 0; k < 3; k++)
+                for(int l = 0; l < 3; l++)
+                {
+                    if(enemies_shot[i][j].bboxCollision(asteroids[k][l]))
+                    {
+                        asteroids_alive[k][l] = false;
+                        asteroids[k][l].setPosition(-400, - 500);
+                        enemies_shot[i][j].setPosition(-543, -300);
+                    }
+                }
+
+
             if(enemies[i][j].bboxCollision(player))
             {
                 lives--;
                 player.setPosition(400,500);
             }
         }
+
+    for(int k = 0; k < 3; k++)
+                for(int l = 0; l < 3; l++)
+                {
+                    if(shot.bboxCollision(asteroids[k][l]))
+                    {
+                        shot.setPosition(-543, -300);
+                    }
+                }
+
 }
 
 void PlayState::checkVictory()
@@ -482,6 +559,11 @@ void PlayState::checkEnemiesMoves(cgf::Game* game)
     }
 }
 
+void drawAsteroids()
+{
+
+}
+
 void PlayState::update(cgf::Game* game)
 {
     checkVictory();
@@ -493,6 +575,7 @@ void PlayState::update(cgf::Game* game)
     moveAllEnemyShots(game);
     checkCollisions();
 
+    drawAsteroids();
 
 
     player.update(game->getUpdateInterval());
@@ -580,6 +663,11 @@ void PlayState::draw(cgf::Game* game)
         for(int j = 0; j<3; j++)
             if(enemies_alive[i][j] == 1)
                 screen->draw(enemies[i][j]);
+
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            if(asteroids_alive[i][j])
+                screen->draw(asteroids[i][j]);
 }
 
 
