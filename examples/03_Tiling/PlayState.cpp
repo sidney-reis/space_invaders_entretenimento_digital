@@ -26,11 +26,25 @@ float enemies_speed;
 int enemies_dead;
 int lives;
 int won;
+int textTimer = 200;
+int gracePeriod = 30;
+bool drawPlayer = true;
 
 using namespace std;
 
 void PlayState::init()
 {
+    if (!font.loadFromFile("data/fonts/arial.ttf")) {
+        cout << "Cannot load arial.ttf font!" << endl;
+        exit(1);
+    }
+    text.setFont(font);
+    text.setString("YOU ARE EARTH'S LAST HOPE! PROTECT IT!");
+    text.setCharacterSize(24); // in pixels
+    text.setColor(sf::Color::Yellow);
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(120, 10);
+
     // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
     music.openFromFile("data/nost/Guile_Theme_-_Slam_Jam_Remix.ogg");
     music.setVolume(30);  // 30% of max. voume
@@ -362,14 +376,17 @@ void PlayState::checkCollisions()
                         won = 1;
                 }
             }
-            if(enemies_shot[i][j].bboxCollision(player))
+            if(enemies_shot[i][j].bboxCollision(player)&&gracePeriod==0)
             {
+                printf("TIRO\n");
                 lives--;
+                gracePeriod = 50;
                 player.setPosition(400,500);
             }
-            if(enemies[i][j].bboxCollision(player))
+            if(enemies[i][j].bboxCollision(player)&&gracePeriod==0)
             {
                 lives--;
+                gracePeriod = 50;
                 player.setPosition(400,500);
             }
         }
@@ -392,17 +409,25 @@ void PlayState::checkVictory()
     if(lives == -1)
     {
        cout << "YOU LOSE\n";
+       text.setString("YOU DIED!");
+       textTimer = 200;
+       text.setPosition(120,10);
        restart();
     }
     if(lives == -2)
     {
         cout << "YOU LOSE! EARTH IS UNDER ATTACK!\n";
+        text.setString("YOU LET THE ENEMIES INVADE EARTH!");
+        textTimer = 200;
+        text.setPosition(120,10);
         restart();
-
     }
     if(won == 1)
     {
         cout << "YOU WIN\n";
+        text.setString("CONGRATULATIONS! YOU SAVED EARTH!");
+        textTimer = 200;
+        text.setPosition(120,10);
         restart();
     }
 }
@@ -497,11 +522,20 @@ void PlayState::update(cgf::Game* game)
     checkCollisions();
 
 
-
+    if(gracePeriod>0)
+    {
+        gracePeriod--;
+    }
+    printf("%d",gracePeriod);
     player.update(game->getUpdateInterval());
     //enemy.update(game->getUpdateInterval());
 
     checkEnemiesMoves(game);
+    textTimer--;
+    if(textTimer == 0)
+    {
+        text.setPosition(-400,-500);
+    }
 }
 
 void PlayState::handleEvents(cgf::Game* game)
@@ -572,8 +606,25 @@ void PlayState::draw(cgf::Game* game)
 {
     screen = game->getScreen();
     screen->draw(background);
-    screen->draw(player);
     screen->draw(shot);
+
+    if(gracePeriod > 0)
+    {
+        if(gracePeriod%10==0)
+        {
+            drawPlayer = false;
+        }
+        else if(gracePeriod%5==0)
+        {
+            drawPlayer = true;
+        }
+    }
+    if(drawPlayer == true)
+    {
+        screen->draw(player);
+    }
+    screen->draw(shot);
+    screen->draw(text);
 
     for(int i = 0; i<3; i++)
             screen->draw(lives_icons[i]);
