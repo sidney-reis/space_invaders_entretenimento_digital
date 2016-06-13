@@ -27,11 +27,25 @@ float enemies_speed;
 int enemies_dead;
 int lives;
 int won;
+int textTimer = 200;
+int gracePeriod = 30;
+bool drawPlayer = true;
 
 using namespace std;
 
 void PlayState::init()
 {
+    if (!font.loadFromFile("data/fonts/arial.ttf")) {
+        cout << "Cannot load arial.ttf font!" << endl;
+        exit(1);
+    }
+    text.setFont(font);
+    text.setString("YOU ARE EARTH'S LAST HOPE! PROTECT IT!");
+    text.setCharacterSize(24); // in pixels
+    text.setColor(sf::Color::Yellow);
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(120, 10);
+
     // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
     music.openFromFile("data/nost/Guile_Theme_-_Slam_Jam_Remix.ogg");
     music.setVolume(30);  // 30% of max. voume
@@ -58,18 +72,23 @@ void PlayState::init()
     player.play();
 
     //CARREGA O TIRO DO JOGADOR
-    shot.load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+    shot.load("data/img/bullet.png");
     shot.setPosition(400,-500);
-    shot.setScale(1,1);
+    shot.setScale(0.5,0.5);
     shot.play();
+
+    background.load("data/img/background.jpg");
+    background.setPosition(0,0);
+    background.setScale(0.25,0.25);
+    background.play();
 
     //CARREGA OS TIROS DOS INIMIGOS
     for(int i = 0; i<10; i++)
         for(int j = 0; j<3; j++)
         {
-            enemies_shot[i][j].load("data/img/shot.png",8,23,0,0,0,0,13,21,273);
+            enemies_shot[i][j].load("data/img/bullet_red.png");
             enemies_shot[i][j].setPosition(400,-500);
-            enemies_shot[i][j].setScale(1,1);
+            enemies_shot[i][j].setScale(0.5, -0.5);
             enemies_shot[i][j].play();
         }
 
@@ -362,8 +381,7 @@ void PlayState::playerShoot(cgf::Game* game,cgf::Sprite* player, cgf::Sprite* ob
         float px = player->getPosition().x;
         float py = player->getPosition().y;
         float tamy = player->getSize().y * player->getScale().y;
-        float tamx = player->getSize().x * player->getScale().x;
-        obj->setPosition( px + tamx/2 , py - tamy);
+        obj->setPosition( px, py - tamy);
 
         shoot = true;
      }
@@ -376,8 +394,7 @@ void PlayState::enemyShoot(cgf::Game* game,cgf::Sprite* enem, cgf::Sprite* obj, 
         float px = enem->getPosition().x;
         float py = enem->getPosition().y;
         float tamy = enem->getSize().y * enem->getScale().y;
-        float tamx = enem->getSize().x * enem->getScale().x;
-        obj->setPosition( px + tamx/2 , py + tamy);
+        obj->setPosition( px, py + tamy);
 
         enemies_shoot[i][j] = true;
      }
@@ -412,10 +429,17 @@ void PlayState::checkCollisions()
                         won = 1;
                 }
             }
-            if(enemies_shot[i][j].bboxCollision(player))
+            if(enemies_shot[i][j].bboxCollision(player)&&gracePeriod==0)
+            {
+                printf("TIRO\n");
+                lives--;
+                gracePeriod = 50;
+                player.setPosition(400,500);
+            }
+            if(enemies[i][j].bboxCollision(player)&&gracePeriod==0)
             {
                 lives--;
-                enemies_shot[i][j].setPosition(-400, -500);
+                gracePeriod = 50;
                 player.setPosition(400,500);
             }
 
@@ -429,23 +453,16 @@ void PlayState::checkCollisions()
                         enemies_shot[i][j].setPosition(-543, -300);
                     }
                 }
-
-
-            if(enemies[i][j].bboxCollision(player))
-            {
-                lives--;
-                player.setPosition(400,500);
-            }
         }
 
     for(int k = 0; k < 3; k++)
-                for(int l = 0; l < 3; l++)
+            for(int l = 0; l < 3; l++)
+            {
+                if(shot.bboxCollision(asteroids[k][l]))
                 {
-                    if(shot.bboxCollision(asteroids[k][l]))
-                    {
-                        shot.setPosition(-543, -300);
-                    }
+                    shot.setPosition(-543, -300);
                 }
+            }
 
 }
 
@@ -466,17 +483,25 @@ void PlayState::checkVictory()
     if(lives == -1)
     {
        cout << "YOU LOSE\n";
+       text.setString("YOU DIED!");
+       textTimer = 200;
+       text.setPosition(120,10);
        restart();
     }
     if(lives == -2)
     {
         cout << "YOU LOSE! EARTH IS UNDER ATTACK!\n";
+        text.setString("YOU LET THE ENEMIES INVADE EARTH!");
+        textTimer = 200;
+        text.setPosition(120,10);
         restart();
-
     }
     if(won == 1)
     {
         cout << "YOU WIN\n";
+        text.setString("CONGRATULATIONS! YOU SAVED EARTH!");
+        textTimer = 200;
+        text.setPosition(120,10);
         restart();
     }
 }
@@ -577,11 +602,20 @@ void PlayState::update(cgf::Game* game)
 
     drawAsteroids();
 
-
+    if(gracePeriod>0)
+    {
+        gracePeriod--;
+    }
+    printf("%d",gracePeriod);
     player.update(game->getUpdateInterval());
     //enemy.update(game->getUpdateInterval());
 
     checkEnemiesMoves(game);
+    textTimer--;
+    if(textTimer == 0)
+    {
+        text.setPosition(-400,-500);
+    }
 }
 
 void PlayState::handleEvents(cgf::Game* game)
@@ -651,8 +685,27 @@ void PlayState::handleEvents(cgf::Game* game)
 void PlayState::draw(cgf::Game* game)
 {
     screen = game->getScreen();
-    screen->draw(player);
+    screen->draw(background);
     screen->draw(shot);
+
+    if(gracePeriod > 0)
+    {
+        if(gracePeriod%10==0)
+        {
+            drawPlayer = false;
+        }
+        else if(gracePeriod%5==0)
+        {
+            drawPlayer = true;
+        }
+    }
+    if(drawPlayer == true)
+    {
+        screen->draw(player);
+    }
+    screen->draw(shot);
+    screen->draw(text);
+
     for(int i = 0; i<3; i++)
             screen->draw(lives_icons[i]);
     for(int i = 0; i<10; i++)

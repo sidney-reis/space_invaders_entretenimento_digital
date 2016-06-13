@@ -62,6 +62,7 @@ class PlayState : public cgf::GameState
     cgf::Sprite player;
     cgf::Sprite shot;
     //cgf::Sprite enemy;
+    cgf::Sprite background;
     cgf::Sprite enemies[10][3];
     cgf::Sprite lives_icons[3];
     cgf::Sprite enemies_shot[10][3];
@@ -73,6 +74,8 @@ class PlayState : public cgf::GameState
     sf::SoundBuffer shootSoundBuffer;
     sf::Sound shootSound;
     sf::Music music;
+    sf::Font font;
+    sf::Text text;
 
     // Checks collision between a sprite and a map layer
     bool checkCollision(uint8_t layer, cgf::Game* game, cgf::Sprite* obj);

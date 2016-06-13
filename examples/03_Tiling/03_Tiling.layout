@@ -3,12 +3,26 @@
 	<ActiveTarget name="Debug-Windows" />
 	<File name="PlayState.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
+<<<<<<< HEAD
 			<Cursor1 position="10189" topLine="358" />
 		</Cursor>
 	</File>
 	<File name="PlayState.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="991" topLine="33" />
+=======
+			<Cursor1 position="4346" topLine="219" />
+		</Cursor>
+	</File>
+	<File name="PlayState.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1427" topLine="38" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+>>>>>>> e2ab1935b28fb7468bcf96d360dbfe7cb7608250
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
