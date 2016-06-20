@@ -88,7 +88,7 @@ void PlayState::init()
         {
             enemies_shot[i][j].load("data/img/bullet_red.png");
             enemies_shot[i][j].setPosition(400,-500);
-            enemies_shot[i][j].setScale(0.5, -0.5);
+            enemies_shot[i][j].setScale(0.5, 0.5);
             enemies_shot[i][j].play();
         }
 
@@ -190,7 +190,7 @@ void PlayState::restart()
     // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
 
     turn = 1.0;
-    enemies_speed = 1.0;
+    enemies_speed = 1000.0;
     enemies_dead = 0;
     lives = 3;
     won = 0;
@@ -429,6 +429,7 @@ void PlayState::checkCollisions()
                         won = 1;
                 }
             }
+            printf("%i", enemies_shot[i][j].bboxCollision(player));
             if(enemies_shot[i][j].bboxCollision(player)&&gracePeriod==0)
             {
                 printf("TIRO\n");
@@ -606,7 +607,7 @@ void PlayState::update(cgf::Game* game)
     {
         gracePeriod--;
     }
-    printf("%d",gracePeriod);
+    //printf("%d",gracePeriod);
     player.update(game->getUpdateInterval());
     //enemy.update(game->getUpdateInterval());
 
@@ -703,7 +704,6 @@ void PlayState::draw(cgf::Game* game)
     {
         screen->draw(player);
     }
-    screen->draw(shot);
     screen->draw(text);
 
     for(int i = 0; i<3; i++)
