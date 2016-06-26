@@ -190,7 +190,7 @@ void PlayState::restart()
     // from Street Fighter 2 AND Space Jam soundtrack - https://www.youtube.com/watch?v=QDFDzTOyLvo
 
     turn = 1.0;
-    enemies_speed = 1000.0;
+    enemies_speed = 1.0;
     enemies_dead = 0;
     lives = 3;
     won = 0;
@@ -429,10 +429,9 @@ void PlayState::checkCollisions()
                         won = 1;
                 }
             }
-            printf("%i", enemies_shot[i][j].bboxCollision(player));
+
             if(enemies_shot[i][j].bboxCollision(player)&&gracePeriod==0)
             {
-                printf("TIRO\n");
                 lives--;
                 gracePeriod = 50;
                 player.setPosition(400,500);
@@ -607,7 +606,6 @@ void PlayState::update(cgf::Game* game)
     {
         gracePeriod--;
     }
-    //printf("%d",gracePeriod);
     player.update(game->getUpdateInterval());
     //enemy.update(game->getUpdateInterval());
 
